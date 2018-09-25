@@ -1,0 +1,138 @@
+-> Jenkins and Jira Integration
+First Jenkins and Jira know each other
+On Jenkins
+ Install Jira and Jira-steps
+ Manage Jenkins -> Configure System -> JIRA Site
+  URL -> Jira URL
+  Link URL -> Jira URL
+  Record SCM changes -> Select it
+  Select Update Relevant Jira issues for all Build Results
+  UserName and Password of Jira
+  Select Timestamp to Jira comments
+  
+
+  On same page
+  Jenkins -> Configure System -> JIRA STEPS
+  NAME - Name of Jira Site
+  URL 
+  Basic -> UserName and Password
+
+Also get API TOKEN
+ People -> Admin account -> Configure -> GET API TOKEN
+
+
+Now On JIRA
+  Settings -> Add-ons -> Jenkins Integration for JIRA 
+ Install above add on
+ Now go to Applications -> Jenkins Configuration
+   Type -> Jenkins 
+   Name -> Any name
+   RPC URL -> Jenkins URL
+   Display URL -> Jenkins URL
+   Auto enable new jobs -> Select it
+   Username -> Jenkins UserName
+   Token -> Use above API Token
+===========================================
+-> Jira and GitHub Integration
+On GitHub
+  GitHub -> Account Settings -> Developer Settings -> OAuth Apps
+  Register a new OAuth application
+   Application Name -> Any Name
+   Homepage URL -> Jira URL(http://3.4.2.1/
+   Application Description
+   Authorization Callback URL -> JIRA URL
+   Register Application
+
+   Note down Client ID and Client Secret.
+
+On Jira
+  Settings -> Applications -> DVCS Accounts -> Link bitbucket
+  Host -> GitHub
+  Team or User Account -> May be GitHub username
+  Client ID
+  Client Secret
+  Auto link New Repositories
+  Enable Smart Commits
+
+
+Note: When ever a developer wants add a new feature to our project then Jira Issue will be opened for the feature with the new brach name(Ex PJD-6)
+Then develper creates a new brach from the integration brach and names the branch as per the JIRA ISSUE KEY and pushes all code to this branch
+
+So when ever a new commit is done developer should use JIRA KEY in commit message. 
+Note: In Jenkins file there will be condition like
+ stage('JIRA) {
+  when {
+   not {
+    branch 'master'
+   }
+  }
+ }
+
+So that new builds will not happen on master branch. 
+$ git checkout -b PJD-6
+$ git push origin PJD-6
+
+We will open a PULL Request to commit above changes from Feature branch to master branch
+
+=============================================
+-> Jira and GitHub Integration
+GitHub -> Settings -> Developer settings -> Register a new OAuth Apps -> 
+    Application name
+    Homepage URL    --Jira URL(http://IP:8080)
+    Authorization callback URL  ---Jira URL(http://IP:8080)
+    Note Down "Client ID, Client Secret"
+Jira -> Administration -> DVCS accounts -> Add new account
+    Host -> GitHub
+    Team or Account Id
+    ClientID
+    Client Secret
+
+Create a ticket in Jira and note down Unique Key
+and while doing the commit use what ever the ticket KEY keep here
+=======================================================================
+-> Jenkins and Slack(collebration tool)
+Jenkins -> Pluggins -> Slack Notification Plugin 
+
+
+Slack Console -> New Channel(Ex: Jenkins_job_stat)
+Then Go to Administration -> Manage Apps -> Find Jenkins -> Install and select Channel
+Note Down
+ BASE URL and INTEGRATIN TOKEN
+
+Jenkins -> Credentials -> Add Credentials -> Secret Text
+  Secret -> Copy the token got from Slack
+  ID and description
+
+Jenkins -> Configure System -> Global Slack Notifier Settings
+ Base URL -> Paste above URL
+ Select Credentials
+ Channel -> Jenkins_job_stat
+
+
+Note: 
+We can Send Slack Notifications using "Shared Library"
+https://medium.com/@lvthillo/send-slack-notifications-in-jenkins-pipelines-using-a-shared-library-873ca876f72c
+https://github.com/ratnakardevops/jenkins-pipeline-shared
+https://jenkins.io/blog/2017/02/15/declarative-notifications/
+
+Manage Jenkins → Configure System → Global Pipeline Libraries → Add
+We will keep all libraries in /var folder in the github repo
+There may be other methods, but it is one of them
+===============================================================================
+-> Jenkins and GitHub
+
+GitHub -> Settings -> Developer Settings -> Personal Access Tokens -> Select required scopes -> Save TOKEN
+Jenkins -> Credentials -> Add Credentials -> Kind(Secret Test) -> Use above secret test.
+
+Jenkins -> Manage Jenkins -> Configure System -> GitHub
+ Name -> AnyName
+ API URL -> https://api.github.com
+ Select the Jenkins username and password
+
+
+Note: 
+We can verify WebHook in GitHub -> Select Repo -> Settings -> WebHooks -> Here we can see Jenkins WebHook
+If we are doing MULTY BRANCH PIPELINE then we need configure USERNAME and PASSWORD(in Jenkins Credentials page). Then only new branches will be deteced. 
+When configuring UserName and Password, we can user above secret test instead of a password.
+In GitHub, we can replace Secret Test in place of password.
+==============================================================================
